@@ -1,0 +1,21 @@
+device(ai,INST_IO,lisAI,"lua")
+device(ao,INST_IO,lisAO,"lua")
+
+device(bi,INST_IO,lisBI,"lua")
+device(bo,INST_IO,lisBO,"lua")
+
+device(mbbi,INST_IO,lisMBBI,"lua")
+device(mbbo,INST_IO,lisMBBO,"lua")
+
+device(stringin,INST_IO,lisSTRINGIN,"lua")
+device(stringout,INST_IO,lisSTRINGOUT,"lua")
+
+device(stringin,INST_IO,lisLONGIN,"lua")
+device(stringout,INST_IO,lisLONGOUT,"lua")
+
+device(waveform,INST_IO,lisWAVEFORM,"lua")
+
+include "luasubRecord.dbd"
+device(luasub,INST_IO,lisLUASUB,"lua")
+
+registrar(lisConfigureRegistrar)
