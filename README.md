@@ -1,6 +1,3 @@
-https://dillinger.io/
-https://stackedit.io/app#
-
 # Overview
 EPICS device- and record-support for the Lua language.
 
