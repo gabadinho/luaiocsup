@@ -14,7 +14,7 @@ EPICS device- and record-support for the Lua language.
 
 ### What it's not
 - It is not another interface layer to an EPICS IOC
-- It does not change the behavior of an EPICS IOC
+- It does not change the behaviour of an EPICS IOC
 
 # Usage
 
@@ -104,7 +104,7 @@ The library also implements extended-device support (as noticed by the _add_reco
 #### Record support
 In the _luasub_ record no methods are hardwired, you specify the method names in the _ICOD_ (record initialization) and in the _PCOD_ (record processing) fields. Inline Lua code, instead of a method name, is also valid, as long as the _ACTP_ field is _FUNORCHK_ (default) or _CHUNK_.
 
-Output fields are forwared to their respective links according to the _DRVO_ field:
+Output fields are forwarded to their respective links according to the _DRVO_ field:
 - _NEVER_: output values are never forwarded to output links
 - _ON_CHANGE_: output values are forwarded if changed from the Lua code
 - _ALWAYS_: output values are always forwarded to output links
@@ -173,7 +173,7 @@ luaiocsup.at_exit(<lua function>)
 ```
 
 ### Threading
-The Lua IOC Support library as been sucessfully tested with threads outside of the EPICS IOC world, more specificaly with the _llthreads2_ library. If these worker-threads want to however trigger a record-processing via an I/O (or soft) event they must have access to the _LIS_ API, therefore the worker-thread as to call the following method in order to bind the required methods:
+The Lua IOC Support library as been successfully tested with threads outside of the EPICS IOC world, more specifically with the _llthreads2_ library. If these worker-threads want to however trigger a record-processing via an I/O (or soft) event they must have access to the _LIS_ API, therefore the worker-thread as to call the following method in order to bind the required methods:
 ```
 <boolean> luaiocsup.bind_luaiocsup()
 ```
