@@ -21,6 +21,7 @@ luaiocsup_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 USR_INCLUDES += -I/usr/local/include
 USR_SYS_LIBS += lua
+USR_CFLAGS += -D USE_TYPED_RSET
 
 #===========================
 

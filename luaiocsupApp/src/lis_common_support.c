@@ -63,7 +63,7 @@ static void lisCallbackWrapper(CALLBACK *rec_callback) {
   struct lisRecordState *priv;
   lua_State *L;
   dbCommon *prec;
-  struct rset *prset;
+  struct typed_rset *prset;
   int num_args,pcall_res,num_ret_args=0,stack_base,extra_args;
   const char *error_msg;
   char *rec_name;
@@ -119,7 +119,7 @@ static void lisCallbackWrapper(CALLBACK *rec_callback) {
   }
 
   /* Re-process record */
-  prset=(struct rset *)prec->rset;
+  prset=(struct typed_rset *)prec->rset;
   lisLog(LIS_LOGLVL_VERBOSE,errlogInfo,now_str,"%s %s Re-processing record %s inside callback-wrapper\n",now_str,LIS_LIB_LOG_NAME,rec_name);
   (*prset->process)(prec);
   lisMutexUnlock2(priv->lisState->stateLock,priv->recordRuntime->stackLock);
@@ -332,7 +332,7 @@ long lisGenerateRecord(struct dbCommon *precord,char *db_link_field,char *init_m
     free(usr_rec_type);
     return S_db_badField; /* Beware: return in the middle of the function! */
   }
-  db_link_text=db_link->text;
+  db_link_text=db_link->value.instio.string; //db_link_text=db_link->text;
   db_link_type=db_link->type;
 
   switch (db_link_type) {
@@ -485,7 +485,7 @@ long lisProcess(struct dbCommon *precord,int allowed_types,int *code_type) {
   char *code2run,*name;
   const char *error_msg=NULL;
   int num_extra_args=0,pushed_code=0,is_chunk=FALSE,pushed_rec_arg=0;
-  int resume_res,callback_found=FALSE,num_cb_params=0,stack_base,extra_args;
+  int resume_res,callback_found=FALSE,num_cb_params=0,stack_base,extra_args, resumed_args;
   
   name=precord->name;
   lisLog(LIS_LOGLVL_STANDARD,errlogInfo,now_str,"%s %s Processing record %s\n",now_str,LIS_LIB_LOG_NAME,name);
@@ -571,7 +571,7 @@ long lisProcess(struct dbCommon *precord,int allowed_types,int *code_type) {
   }
 
   stack_base=lua_gettop(L)-pushed_code-pushed_rec_arg-num_extra_args;
-  resume_res=lua_resume(L,NULL,pushed_rec_arg+num_extra_args);
+  resume_res=lua_resume(L,NULL,pushed_rec_arg+num_extra_args,&resumed_args);
   if ((resume_res==LUA_YIELD)||(resume_res==LUA_OK)) {
     priv->recordRuntime->isYielded=(resume_res==LUA_YIELD);
 

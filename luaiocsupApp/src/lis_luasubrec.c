@@ -22,14 +22,14 @@
 
 typedef long (*GENFUNCPTR)(struct luasubRecord *);
 
-static long luasubInitRecord(luasubRecord *,int);
-static long luasubProcess(luasubRecord *);
+static long luasubInitRecord(struct dbCommon *,int);
+static long luasubProcess(struct dbCommon *);
 static long luasubSpecial(DBADDR *,int);
 static long luasubCvtDbAddr(DBADDR *);
 static long luasubGetArrayInfo(DBADDR *,long *,long *);
 static long luasubPutArrayInfo(DBADDR *,long);
-static long luasubGetPrecision(DBADDR *,long *);
-rset luasubRSET = {
+static long luasubGetPrecision(const struct dbAddr *,long *);
+struct typed_rset luasubRSET = {
   RSETNUMBER,
   NULL,
   NULL,
@@ -290,19 +290,20 @@ static void luasubDriveMonitors(luasubRecord *prec,short output_updated[]) {
   }
 }
 
-static long luasubInitRecord(luasubRecord *prec,int pass) {
+static long luasubInitRecord(struct dbCommon *prec,int pass) {
   NOW_STR;
   long res=LIS_EPICS_SUCCESS;
   struct lisRecordState *priv=prec->dpvt;
+  luasubRecord *lsrec = (luasubRecord *)prec;
 
   if (pass==1) {
     if (priv==NULL) {
       lisLog(LIS_LOGLVL_STANDARD,errlogMajor,now_str,"%s %s Call to init() on uninitialized record %s\n",now_str,LIS_LIB_LOG_NAME,prec->name);
       res=S_db_errArg;
-    } else if ((prec->icod!=NULL)&&(strlen(prec->icod)>0)) {
+    } else if ((lsrec->icod!=NULL)&&(strlen(lsrec->icod)>0)) {
         lisMutexLock2(priv->lisState->stateLock,priv->recordRuntime->stackLock);
         lisLog(LIS_LOGLVL_STANDARD,errlogInfo,now_str,"%s %s Initializing record %s\n",now_str,LIS_LIB_LOG_NAME,prec->name);
-        res=lisPrepLuaAndPCall(priv->recordRuntime->coroutStack,prec->name,priv->recordConfig->className,prec->icod,prec->actp);
+        res=lisPrepLuaAndPCall(priv->recordRuntime->coroutStack,prec->name,priv->recordConfig->className,lsrec->icod,lsrec->actp);
         lisMutexUnlock2(priv->lisState->stateLock,priv->recordRuntime->stackLock);
     }
   }
@@ -310,28 +311,29 @@ static long luasubInitRecord(luasubRecord *prec,int pass) {
   return res;
 }
 
-static long luasubProcess(luasubRecord *prec) {
+static long luasubProcess(struct dbCommon *prec) {
   int code_type,pact=prec->pact;
   long res=LIS_EPICS_SUCCESS;
   struct lisRecordState *priv=prec->dpvt;
+  luasubRecord *lsrec = (luasubRecord *)prec;
   short output_updated[NUM_IO_FIELDS];
 
   if (!pact) {
     prec->pact=TRUE;
-    res=luasubFetchInputValues(prec);
+    res=luasubFetchInputValues(lsrec);
     prec->pact=FALSE;
   }
 
-  if ((res==LIS_EPICS_SUCCESS)&&(prec->pcod[0]!=0)) {
-    res=lisProcess((struct dbCommon *)prec,prec->actp,&code_type);
+  if ((res==LIS_EPICS_SUCCESS)&&(lsrec->pcod[0]!=0)) {
+    res=lisProcess((struct dbCommon *)prec,lsrec->actp,&code_type);
     if (res==LIS_EPICS_SUCCESS) {
       prec->udf=FALSE;
     }
-    prec->val=res;
+    lsrec->val=res;
     if (priv) { /* Update is-yielded field */
-      prec->yldd=priv->recordRuntime->isYielded;
+      lsrec->yldd=priv->recordRuntime->isYielded;
     }
-    if (code_type) prec->pctp=code_type;
+    if (code_type) lsrec->pctp=code_type;
   }
 
   if (!pact && prec->pact) return LIS_EPICS_SUCCESS;
@@ -339,11 +341,11 @@ static long luasubProcess(luasubRecord *prec) {
 
   memset(output_updated,0,sizeof output_updated);
   if (res==LIS_EPICS_SUCCESS) {
-    luasubPushOutputValues(prec,output_updated);
+    luasubPushOutputValues(lsrec,output_updated);
   }
   recGblGetTimeStamp(prec);
-  luasubDriveMonitors(prec,output_updated);
-  luasubClearValidOutputFields(prec);
+  luasubDriveMonitors(lsrec,output_updated);
+  luasubClearValidOutputFields(lsrec);
   recGblFwdLink(prec);
   prec->pact=FALSE;
 
@@ -485,7 +487,7 @@ static long luasubPutArrayInfo(DBADDR *paddr, long n_new) {
   return LIS_EPICS_SUCCESS;
 }
 
-static long luasubGetPrecision(DBADDR *paddr,long *precision) {
+static long luasubGetPrecision(const struct dbAddr *paddr,long *precision) {
   luasubRecord *prec=(luasubRecord *)paddr->precord;
   *precision=prec->prec;
   recGblGetPrec(paddr,precision);
