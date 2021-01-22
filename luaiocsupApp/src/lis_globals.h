@@ -1,8 +1,7 @@
 #ifndef INC_lis_globals_H
 #define INC_lis_globals_H
 
-#include "lis_epics.h"
-
+#include <epicsMutex.h>
 #include <callback.h>
 
 #ifndef TRUE

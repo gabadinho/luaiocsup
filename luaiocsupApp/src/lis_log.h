@@ -3,8 +3,6 @@
 
 #include "lis_globals.h"
 
-#include <lua.h>
-
 #include <epicsStdio.h>
 #include <errlog.h>
 #include <epicsTime.h>
@@ -19,19 +17,19 @@
 #define LIS_LIB_LOG_NAME    "[luaiocsup]"
 #define LIS_SCRIPT_LOG_NAME "[luascript]"
 
-static inline void lisGenLogTime(char *buffer,int buffer_size) {
-  epicsTimeStamp now;
-  epicsTimeGetCurrent(&now);
-  epicsTimeToStrftime(buffer,buffer_size,"%Y/%m/%d %H:%M:%S.%02f",&now);
+static inline void lisGenLogTime(char *buffer, int buffer_size) {
+    epicsTimeStamp now;
+    epicsTimeGetCurrent(&now);
+    epicsTimeToStrftime(buffer, buffer_size, "%Y/%m/%d %H:%M:%S.%02f", &now);
 }
 
-#define lisLog(level,severity,timestamp,format,...)                \
-if (lisDebugLevel>=level) {                                        \
-  if (timestamp!=NULL) lisGenLogTime(timestamp,sizeof(timestamp)); \
-  errlogSevPrintf(severity,format,__VA_ARGS__);                    \
+#define lisLog(level, severity, timestamp, format, ...)               \
+if (lisDebugLevel>=level) {                                           \
+    if (timestamp!=NULL) lisGenLogTime(timestamp, sizeof(timestamp)); \
+    errlogSevPrintf(severity, format, __VA_ARGS__);                   \
 }
 
-#define lisLogSimple(...)       \
+#define lisLogSimple(...) \
 epicsStdoutPrintf(__VA_ARGS__);
 
 #endif /* INC_lis_log_H */

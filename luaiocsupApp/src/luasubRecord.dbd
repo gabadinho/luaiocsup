@@ -44,7 +44,7 @@ recordtype(luasub) {
         promptgroup(GUI_SUB)
         special(SPC_NOMOD)
         interest(1)
-        size(41)
+        size(40)
     }
     field(ACTP,DBF_MENU) {
         prompt("Name Type")
@@ -63,14 +63,14 @@ recordtype(luasub) {
         promptgroup(GUI_SUB)
         special(SPC_MOD)
         interest(1)
-        size(41)
+        size(40)
     }
     field(OCOD,DBF_STRING) {
         prompt("Old Processing Code")
         promptgroup(GUI_SUB)
         special(SPC_NOMOD)
         interest(3)
-        size(41)
+        size(40)
     }
     %struct luasubRecord;
     field(YLDD,DBF_SHORT) {

@@ -1,11 +1,7 @@
-#include <stdlib.h>
-
 #include "lis_globals.h"
-#include "lis_common_support.h"
+#include "lis_c_common_support.h"
 #include "lis_log.h"
-#include "lis_data_structs.h"
 #include "lis_lua.h"
-#include "lis_epics.h"
 
 #include <registryFunction.h>
 #include <epicsExport.h>
@@ -15,104 +11,148 @@
 #include <epicsStdio.h>
 #include <initHooks.h>
 
-#define RECSUPDEF(REC,DB_LINK_FIELD,PROC_METH_NAME,LINCONV) \
-static long lisAddRecord ## REC (struct dbCommon *precord) { \
-  return lisAddRecord(precord,DB_LINK_FIELD,PROC_METH_NAME); \
-} \
-static long lisDelRecord ## REC (struct dbCommon *precord) { \
-  return lisDeleteRecord(precord); \
-} \
-static struct dsxt lisDsxt ## REC = { \
-    lisAddRecord ## REC, lisDelRecord ## REC \
-}; \
-static long lisReport ## REC (int interest) { \
-  return lisReport(interest,# REC); \
-} \
-static long lisInitLua ## REC (int phase) { \
-  NOW_STR; \
-  if(phase==0) { \
-    lisLog(LIS_LOGLVL_VERBOSE,errlogInfo,now_str,"%s %s Initializing %s support\n",now_str,LIS_LIB_LOG_NAME,#REC); \
-    devExtend(&lisDsxt ## REC); \
-  } \
-  return LIS_EPICS_SUCCESS; \
-} \
-static long lisInitRecord ## REC (struct dbCommon *precord) { \
-  return(lisLegacyInitRecord(precord)); \
-} \
-struct { \
-  long num; \
-  DEVSUPFUN report; \
-  DEVSUPFUN init; \
-  DEVSUPFUN init_record; \
-  DEVSUPFUN get_ioint_info; \
-  DEVSUPFUN proc_fun; \
-  DEVSUPFUN special_linconv; \
-} lis ## REC = { \
-  6, /* space for 6 functions */ \
-  lisReport ## REC, \
-  lisInitLua ## REC, \
-  lisInitRecord ## REC, \
-  lisGetIoIntInfo, \
-  lisDevSupProcess, \
-  LINCONV \
-}; \
-epicsExportAddress(dset,lis ## REC);
+#include <aiRecord.h>
+#include <aoRecord.h>
+#include <biRecord.h>
+#include <boRecord.h>
+#include <mbbiRecord.h>
+#include <mbboRecord.h>
+#include <stringinRecord.h>
+#include <stringoutRecord.h>
+#include <longinRecord.h>
+#include <longoutRecord.h>
+#include <waveformRecord.h>
 
-long lisDevSupProcess(struct dbCommon *precord) {
-  return lisProcess(precord,LIS_ALLOW_FUNCTION_ONLY,NULL);
+#define RECSUPDEF(REC_RECORD, REC_NAME, DB_LINK_FIELD, PROC_METH_NAME) \
+static long lisAddRecord ## REC_NAME (struct dbCommon *precord) { \
+    return lisAddRecord(precord, DB_LINK_FIELD, PROC_METH_NAME); \
+} \
+static long lisDelRecord ## REC_NAME (struct dbCommon *precord) { \
+    return lisDeleteRecord(precord); \
+} \
+static struct dsxt lisDsxt ## REC_NAME = { \
+    lisAddRecord ## REC_NAME, lisDelRecord ## REC_NAME \
+}; \
+static long lisReport ## REC_NAME (int interest) { \
+    return lisReport(interest, # REC_NAME); \
+} \
+static long lisInitLua ## REC_NAME (int phase) { \
+    NOW_STR; \
+    if(phase==0) { \
+        lisLog(LIS_LOGLVL_VERBOSE, errlogInfo, now_str, "%s %s Initializing %s support\n", now_str, LIS_LIB_LOG_NAME, #REC_NAME); \
+        devExtend(&lisDsxt ## REC_NAME); \
+    } \
+    return LIS_EPICS_SUCCESS; \
+} \
+static long lisInitRecord ## REC_NAME (struct dbCommon *precord) { \
+    return(lisLegacyInitRecord(precord)); \
+} \
+static long lisProcess ## REC_NAME (struct REC_RECORD ## Record *precord) { \
+    return lisDevSupProcess((struct dbCommon *)precord); \
 }
 
-RECSUPDEF(AI,LIS_INP_FIELD_NAME,LIS_AI_PROCESS_METHOD,lisSpecialLinConv)
-RECSUPDEF(AO,LIS_OUT_FIELD_NAME,LIS_AO_PROCESS_METHOD,lisSpecialLinConv)
+#define EXPORT_DSET(REC_DSET, REC_NAME) \
+REC_DSET ## dset lis ## REC_NAME = { \
+    { 5, /* space for 5 functions */ \
+      lisReport ## REC_NAME, \
+      lisInitLua ## REC_NAME, \
+      lisInitRecord ## REC_NAME, \
+      lisGetIoIntInfo }, \
+    lisProcess ## REC_NAME, \
+}; \
+epicsExportAddress(dset, lis ## REC_NAME);
 
-RECSUPDEF(BI,LIS_INP_FIELD_NAME,LIS_BI_PROCESS_METHOD,NULL)
-RECSUPDEF(BO,LIS_OUT_FIELD_NAME,LIS_BO_PROCESS_METHOD,NULL)
+#define EXPORT_DSET_LINCONV(REC_DSET, REC_RECORD, REC_NAME) \
+static long lisSpecialLinConv ## REC_NAME (struct REC_RECORD ## Record *precord, int after) { \
+    return lisSpecialLinConv((struct dbCommon *)precord, after); \
+} \
+REC_DSET ## dset lis ## REC_NAME = { \
+    { 6, /* space for 6 functions */ \
+      lisReport ## REC_NAME, \
+      lisInitLua ## REC_NAME, \
+      lisInitRecord ## REC_NAME, \
+      lisGetIoIntInfo }, \
+    lisProcess ## REC_NAME, \
+    lisSpecialLinConv ## REC_NAME \
+}; \
+epicsExportAddress(dset, lis ## REC_NAME);
 
-RECSUPDEF(MBBI,LIS_INP_FIELD_NAME,LIS_MBBI_PROCESS_METHOD,NULL)
-RECSUPDEF(MBBO,LIS_OUT_FIELD_NAME,LIS_MBBO_PROCESS_METHOD,NULL)
+long lisDevSupProcess(struct dbCommon *precord) {
+    return lisProcess(precord, LIS_ALLOW_FUNCTION_ONLY, NULL);
+}
 
-RECSUPDEF(STRINGIN,LIS_INP_FIELD_NAME,LIS_STRINGIN_PROCESS_METHOD,NULL)
-RECSUPDEF(STRINGOUT,LIS_OUT_FIELD_NAME,LIS_STRINGOUT_PROCESS_METHOD,NULL)
+RECSUPDEF(ai, AI, LIS_INP_FIELD_NAME, LIS_AI_PROCESS_METHOD)
+EXPORT_DSET_LINCONV(ai, ai, AI)
 
-RECSUPDEF(LONGIN,LIS_INP_FIELD_NAME,LIS_LONGIN_PROCESS_METHOD,NULL)
-RECSUPDEF(LONGOUT,LIS_OUT_FIELD_NAME,LIS_LONGOUT_PROCESS_METHOD,NULL)
+RECSUPDEF(ao, AO, LIS_OUT_FIELD_NAME, LIS_AO_PROCESS_METHOD)
+EXPORT_DSET_LINCONV(ao, ao, AO)
 
-RECSUPDEF(WAVEFORM,LIS_INP_FIELD_NAME,LIS_WAVEFORM_PROCESS_METHOD,NULL)
+RECSUPDEF(bi, BI, LIS_INP_FIELD_NAME, LIS_BI_PROCESS_METHOD)
+EXPORT_DSET(bi, BI)
 
-static const iocshArg lisConfigureArg0 = {"Directory",iocshArgString};
-static const iocshArg lisConfigureArg1 = {"Debug level",iocshArgInt};
-static const iocshArg lisConfigureArg2 = {"Stack size",iocshArgInt};
-static const iocshArg lisConfigureArg3 = {"Allow Str2WfChar",iocshArgInt};
+RECSUPDEF(bo, BO, LIS_OUT_FIELD_NAME, LIS_BO_PROCESS_METHOD)
+EXPORT_DSET(bo, BO)
 
-static const iocshArg *const lisConfigureArgs[4] = {&lisConfigureArg0,&lisConfigureArg1,&lisConfigureArg2,&lisConfigureArg3};
-static const iocshFuncDef lisConfigureDef = {"lisConfigure",4,lisConfigureArgs};
+RECSUPDEF(mbbi, MBBI, LIS_INP_FIELD_NAME, LIS_MBBI_PROCESS_METHOD)
+EXPORT_DSET(mbbi, MBBI)
 
-void lisConfigure(char *scripts_dir,int log_level,int stack_size,int charsasstring) {
-  epicsStdoutPrintf("Lua IOC Support scripts dir: %s\n",scripts_dir);
-  epicsStdoutPrintf("Lua IOC Support log level  : %d\n",log_level);
-  epicsStdoutPrintf("Lua IOC Support stack size : %d\n",stack_size);
-  epicsStdoutPrintf("Lua IOC Support chr-as-str : %d\n",charsasstring);
-  lisSetBaseDirectory(scripts_dir);
-  lisSetDebugLevel(log_level);
-  lisSetMinStackSize(stack_size);
-  lisSetCastCharsAsString(charsasstring);
+RECSUPDEF(mbbo, MBBO, LIS_OUT_FIELD_NAME, LIS_MBBO_PROCESS_METHOD)
+EXPORT_DSET(mbbo, MBBO)
+
+RECSUPDEF(stringin, STRINGIN, LIS_INP_FIELD_NAME, LIS_STRINGIN_PROCESS_METHOD)
+EXPORT_DSET(stringin, STRINGIN)
+
+RECSUPDEF(stringout, STRINGOUT, LIS_OUT_FIELD_NAME, LIS_STRINGOUT_PROCESS_METHOD)
+EXPORT_DSET(stringout, STRINGOUT)
+
+RECSUPDEF(longin, LONGIN, LIS_INP_FIELD_NAME, LIS_LONGIN_PROCESS_METHOD)
+EXPORT_DSET(longin, LONGIN)
+
+RECSUPDEF(longout, LONGOUT, LIS_OUT_FIELD_NAME, LIS_LONGOUT_PROCESS_METHOD)
+EXPORT_DSET(longout, LONGOUT)
+
+RECSUPDEF(waveform, WAVEFORM, LIS_INP_FIELD_NAME, LIS_WAVEFORM_PROCESS_METHOD)
+EXPORT_DSET(wf, WAVEFORM)
+
+static const iocshArg lisConfigureArg0 = { "Directory", iocshArgString };
+static const iocshArg lisConfigureArg1 = { "Debug level", iocshArgInt };
+static const iocshArg lisConfigureArg2 = { "Stack size", iocshArgInt };
+static const iocshArg lisConfigureArg3 = { "Allow Str2WfChar", iocshArgInt };
+
+static const iocshArg *const lisConfigureArgs[4] = { &lisConfigureArg0, &lisConfigureArg1, &lisConfigureArg2, &lisConfigureArg3 };
+static const iocshFuncDef lisConfigureDef = { "lisConfigure", 4, lisConfigureArgs };
+
+void lisConfigure(char *scripts_dir, int log_level, int stack_size, int charsasstring) {
+    epicsStdoutPrintf("Lua IOC Support scripts dir: %s\n", scripts_dir);
+    epicsStdoutPrintf("Lua IOC Support log level  : %d\n", log_level);
+    epicsStdoutPrintf("Lua IOC Support stack size : %d\n", stack_size);
+    epicsStdoutPrintf("Lua IOC Support chr-as-str : %d\n", charsasstring);
+    lisSetBaseDirectory(scripts_dir);
+    lisSetDebugLevel(log_level);
+    lisSetMinStackSize(stack_size);
+    lisSetCastCharsAsString(charsasstring);
 }
 
 static void lisIocshConfigure(const iocshArgBuf *args) {
-  lisConfigure(args[0].sval,args[1].ival,args[2].ival,args[3].ival);
+    lisConfigure(args[0].sval, args[1].ival, args[2].ival, args[3].ival);
 }
 
 void lisInitHook(initHookState state) {
-  NOW_STR;
-  if (state==initHookAfterIocRunning) {
-    lisLog(LIS_LOGLVL_VERBOSE,errlogInfo,now_str,"%s %s IOC is now running\n",now_str,LIS_LIB_LOG_NAME);
-    lisIsIocRunning=TRUE;
-  }
+    NOW_STR;
+    lisSupInitHook(state);
+    /*if (state==initHookAtIocBuild) {
+        lisDevSupHookAtIocBuild();
+    } else*/ if (state==initHookAfterIocRunning) {
+        //lisDevSupHookAfterIocRunning();
+
+        lisLog(LIS_LOGLVL_VERBOSE, errlogInfo, now_str, "%s %s IOC is now running\n", now_str, LIS_LIB_LOG_NAME);
+        lisIsIocRunning = TRUE;
+    }
 }
 
 static void lisConfigureRegistrar(void) {
-  lisRecordsAddDelLock=lisMutexCreate();
-  initHookRegister(lisInitHook);
-  iocshRegister(&lisConfigureDef,lisIocshConfigure);
+    lisRecordsAddDelLock=lisMutexCreate();
+    initHookRegister(lisInitHook);
+    iocshRegister(&lisConfigureDef, lisIocshConfigure);
 }
 epicsExportRegistrar(lisConfigureRegistrar);
