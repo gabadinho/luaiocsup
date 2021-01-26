@@ -1,7 +1,7 @@
 TOP = ..
 include $(TOP)/configure/CONFIG
 
-DIRS += datetestIOC
+DIRS += dateformatIOC gtestIOC
 
 include $(TOP)/configure/RULES_TOP
 

@@ -8,31 +8,31 @@ include $(TOP)/configure/CONFIG
 #=============================
 # Build the IOC application
 
-PROD_IOC = datetest
-# datetest.dbd will be created and installed
-DBD += datetest.dbd
+PROD_IOC = dateformat
+# dateformat.dbd will be created and installed
+DBD += dateformat.dbd
 
-# datetest.dbd will be made up from these files:
-datetest_DBD += base.dbd
+# dateformat.dbd will be made up from these files:
+dateformat_DBD += base.dbd
 
 # Include dbd files from all support applications:
-datetest_DBD += luaiocsup.dbd
+dateformat_DBD += luaiocsup.dbd
 
 # Add all the support libraries needed by this IOC
-datetest_LIBS += luaiocsup
+dateformat_LIBS += luaiocsup
 
-# datetest_registerRecordDeviceDriver.cpp derives from datetest.dbd
-datetest_SRCS += datetest_registerRecordDeviceDriver.cpp
+# dateformat_registerRecordDeviceDriver.cpp derives from dateformat.dbd
+dateformat_SRCS += dateformat_registerRecordDeviceDriver.cpp
 
 # Build the main IOC entry point on workstation OSs.
-datetest_SRCS_DEFAULT += datetestMain.cpp
-datetest_SRCS_vxWorks += -nil-
+dateformat_SRCS_DEFAULT += dateformatMain.cpp
+dateformat_SRCS_vxWorks += -nil-
 
 # Add support from base/src/vxWorks if needed
-#datetest_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
+#dateformat_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
 
 # Finally link to the EPICS Base libraries
-datetest_LIBS += $(EPICS_BASE_IOC_LIBS)
+dateformat_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #===========================
 

@@ -1,7 +1,8 @@
 #include "lis_globals.h"
 #include "lis_c_common_support.h"
 #include "lis_log.h"
-#include "lis_lua.h"
+#include "lis_defs.h"
+#include "lis_mutex.h"
 
 #include <registryFunction.h>
 #include <epicsExport.h>
@@ -139,7 +140,7 @@ static void lisIocshConfigure(const iocshArgBuf *args) {
 
 void lisInitHook(initHookState state) {
     NOW_STR;
-    lisSupInitHook(state);
+    //lisSupInitHook(state);
     /*if (state==initHookAtIocBuild) {
         lisDevSupHookAtIocBuild();
     } else*/ if (state==initHookAfterIocRunning) {

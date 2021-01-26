@@ -1,15 +1,7 @@
 #include "lis_common_support.h"
 
 #include "lis_log.h"
-#include "lis_epics.h"
-
-#include <gtest/gtest.h>
-
-TEST(module_name, test_name) {
-    std::cout << "Hello world!" << std::endl;
-    // Google Test will also provide macros for assertions.
-    ASSERT_EQ(1+1, 2);
-}
+#include "lis_mutex.h"
 
 void lisDevSupPhase1Init() {
     NOW_STR;
@@ -17,24 +9,6 @@ void lisDevSupPhase1Init() {
     lisLog(LIS_LOGLVL_VERBOSE, errlogInfo, now_str, "%s %s Performing device support phase-1 bindings\n", now_str, LIS_LIB_LOG_NAME);
 
 }
-
-void lisSupInitHook(initHookState state) {
-    if (state==initHookAtIocBuild) {
-        ::testing::InitGoogleTest();
-    } else if (state==initHookAfterIocBuilt) {
-        RUN_ALL_TESTS();
-    }
-}
-
-/*
-void lisDevSupHookAtIocBuild() {
-    ::testing::InitGoogleTest();
-}
-
-void lisDevSupHookAfterIocRunning() {
-    RUN_ALL_TESTS(); // RUN TESTS PERHAPS _BEFORE_ IOC STARTS...?! BECAUSE DATABASE CANNOT BE CHANGED HERE ANYMORE!!!
-}
-*/
 
 long lisReport(int interest, char *rec_report_type) {
     lisMutexLock(lisRecordsAddDelLock);

@@ -1,6 +1,6 @@
-#!../../bin/linux-x86_64/datetest
+#!../../bin/linux-x86_64/dateformat
 
-#- You may have to change datetest to something else
+#- You may have to change dateformat to something else
 #- everywhere it appears in this file
 
 < envPaths
@@ -8,8 +8,8 @@
 cd "${TOP}"
 
 ## Register all support components
-dbLoadDatabase "dbd/datetest.dbd"
-datetest_registerRecordDeviceDriver pdbbase
+dbLoadDatabase "dbd/dateformat.dbd"
+dateformat_registerRecordDeviceDriver pdbbase
 
 ## Configure Lua IOC Support
 lisConfigure("${TOP}/luascripts",2,20)

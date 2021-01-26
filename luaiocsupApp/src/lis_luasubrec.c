@@ -4,7 +4,7 @@
 
 #include "lis_log.h"
 #include "lis_common_support.h"
-#include "lis_epics.h"
+#include "lis_defs.h"
 
 #include <dbCommon.h>
 #include <recSup.h>

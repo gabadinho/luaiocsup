@@ -3,19 +3,12 @@
 
 #include <dbCommon.h>
 #include <dbScan.h>
-#include <initHooks.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
 void lisDevSupPhase1Init();
-
-/*
-void lisDevSupHookAtIocBuild();
-void lisDevSupHookAfterIocRunning();
-*/
-void lisSupInitHook(initHookState state);
 
 long lisReport(int interest, char *rec_report_type);
 
@@ -35,6 +28,5 @@ long lisLegacyInitRecord(struct dbCommon *precord);
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif /* INC_lis_c_common_support_H */
