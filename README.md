@@ -1,3 +1,7 @@
+# In development...
+Literally: this branch is currently not-production ready due to C++ refactoring.
+Please use the _v1-fixes_ branch! Thank you.
+
 # Overview
 EPICS device- and record-support for the Lua language.
 

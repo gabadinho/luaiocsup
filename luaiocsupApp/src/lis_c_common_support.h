@@ -2,7 +2,7 @@
 #define INC_lis_c_common_support_H
 
 #include <dbCommon.h>
-#include <dbScan.h>
+#include <devSup.h>
 
 #ifdef __cplusplus
 extern "C" {

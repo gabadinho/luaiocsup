@@ -17,12 +17,14 @@ DBD += luasubRecord.dbd
 # specify all source files to be compiled and added to the library
 #luaiocsup_SRCS += lis_globals.c luaiocsup.c lis_common_support.c lis_string_manip.c lis_lua.c lis_data_structs.c lis_data_cast.c lis_luasubrec.c
 luaiocsup_SRCS += lis_globals.c luaiocsup.c lis_common_support.cpp lis_luasubrec.c
+luaiocsup_SRCS += lis_base_record.cpp lis_ai_record.cpp
 
 luaiocsup_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 USR_INCLUDES += -I/usr/local/include
 USR_SYS_LIBS += lua
 USR_CFLAGS += -D USE_TYPED_RSET
+USR_CPPFLAGS += -D USE_TYPED_RSET
  
 #===========================
 

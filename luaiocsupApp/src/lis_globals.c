@@ -8,7 +8,7 @@ int   lisMinStackSize = 0;
 char *lisBaseDirectory = NULL;
 int   lisCastCharsAsString = FALSE;
 
-epicsMutexId lisRecordsAddDelLock;
+epicsMutexId lisRecordsAddDelLock; /* MOVE THIS TO BaseRecord CLASS!!!*/
 
 int lisIsIocRunning = FALSE;
 
