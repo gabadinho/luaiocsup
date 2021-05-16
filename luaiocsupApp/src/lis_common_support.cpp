@@ -17,7 +17,8 @@ long lisReport(int interest, char *rec_report_type) {
     return LIS_EPICS_SUCCESS;
 }
 
-long lisAddRecord(struct dbCommon *precord, char *db_link_field, char *proc_meth_name) {
+//long lisAddRecord(struct dbCommon *precord, char *db_link_field, char *proc_meth_name) {
+long lisAddRecord(struct dbCommon *precord) {
     int res=LIS_EPICS_SUCCESS;
     NOW_STR;
 

@@ -12,7 +12,8 @@ void lisDevSupPhase1Init();
 
 long lisReport(int interest, char *rec_report_type);
 
-long lisAddRecord(struct dbCommon *precord, char *db_link_field, char *proc_meth_name);
+//long lisAddRecord(struct dbCommon *precord, char *db_link_field, char *proc_meth_name);
+long lisAddRecord(struct dbCommon *precord);
 int  lisDeleteRecord(struct dbCommon *precord);
 
 long lisGenerateRecord(struct dbCommon *precord, char *db_link_field, char *init_meth_name, char *proc_meth_name, int force_load);

@@ -20,5 +20,8 @@ BaseRecord * BaseRecord::CreateRecord(struct dbCommon *precord, std::string db_l
     return nullptr;
 }
 
-BaseRecord::BaseRecord(struct dbCommon *precord, std::string db_link_field, std::string init_meth_name, std::string proc_meth_name, bool force_load) {
+//BaseRecord::BaseRecord(struct dbCommon *precord, std::string db_link_field, std::string init_meth_name, std::string proc_meth_name, bool force_load) {
+//}
+
+BaseRecord::BaseRecord(struct dbCommon *precord, bool force_load) {
 }

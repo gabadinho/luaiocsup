@@ -12,7 +12,10 @@
 #include <epicsStdio.h>
 #include <initHooks.h>
 
+
 #include <aiRecord.h>
+#include <stringoutRecord.h>
+/*
 #include <aoRecord.h>
 #include <biRecord.h>
 #include <boRecord.h>
@@ -23,10 +26,13 @@
 #include <longinRecord.h>
 #include <longoutRecord.h>
 #include <waveformRecord.h>
+*/
 
-#define RECSUPDEF(REC_RECORD, REC_NAME, DB_LINK_FIELD, PROC_METH_NAME) \
+
+
+#define RECSUPDEF(REC_RECORD, REC_NAME) \
 static long lisAddRecord ## REC_NAME (struct dbCommon *precord) { \
-    return lisAddRecord(precord, DB_LINK_FIELD, PROC_METH_NAME); \
+    return lisAddRecord(precord); \
 } \
 static long lisDelRecord ## REC_NAME (struct dbCommon *precord) { \
     return lisDeleteRecord(precord); \
@@ -52,9 +58,45 @@ static long lisProcess ## REC_NAME (struct REC_RECORD ## Record *precord) { \
     return lisDevSupProcess((struct dbCommon *)precord); \
 }
 
+
+
+#define EXPORT_DSET_LINCONV(REC_DSET, REC_RECORD, REC_NAME) \
+static long lisSpecialLinConv ## REC_NAME (struct REC_RECORD ## Record *precord, int after) { \
+    return lisSpecialLinConv((struct dbCommon *)precord, after); \
+} \
+REC_DSET ## dset lis ## REC_NAME = { \
+    { 6, \
+      lisReport ## REC_NAME, \
+      lisInitLua ## REC_NAME, \
+      lisInitRecord ## REC_NAME, \
+      lisGetIoIntInfo }, \
+    lisProcess ## REC_NAME, \
+    lisSpecialLinConv ## REC_NAME \
+}; \
+epicsExportAddress(dset, lis ## REC_NAME);
+
+
 #define EXPORT_DSET(REC_DSET, REC_NAME) \
 REC_DSET ## dset lis ## REC_NAME = { \
-    { 5, /* space for 5 functions */ \
+    { 5, \
+      lisReport ## REC_NAME, \
+      lisInitLua ## REC_NAME, \
+      lisInitRecord ## REC_NAME, \
+      lisGetIoIntInfo }, \
+    lisProcess ## REC_NAME, \
+}; \
+epicsExportAddress(dset, lis ## REC_NAME);
+
+
+long lisDevSupProcess(struct dbCommon *precord) {
+    return lisProcess(precord, LIS_ALLOW_FUNCTION_ONLY, NULL);
+}
+
+
+/*
+#define EXPORT_DSET(REC_DSET, REC_NAME) \
+REC_DSET ## dset lis ## REC_NAME = { \
+    { 5, \
       lisReport ## REC_NAME, \
       lisInitLua ## REC_NAME, \
       lisInitRecord ## REC_NAME, \
@@ -68,7 +110,7 @@ static long lisSpecialLinConv ## REC_NAME (struct REC_RECORD ## Record *precord,
     return lisSpecialLinConv((struct dbCommon *)precord, after); \
 } \
 REC_DSET ## dset lis ## REC_NAME = { \
-    { 6, /* space for 6 functions */ \
+    { 6, \
       lisReport ## REC_NAME, \
       lisInitLua ## REC_NAME, \
       lisInitRecord ## REC_NAME, \
@@ -114,6 +156,32 @@ EXPORT_DSET(longout, LONGOUT)
 
 RECSUPDEF(waveform, WAVEFORM, LIS_INP_FIELD_NAME, LIS_WAVEFORM_PROCESS_METHOD)
 EXPORT_DSET(wf, WAVEFORM)
+*/
+
+RECSUPDEF(ai, AI)
+EXPORT_DSET_LINCONV(ai, ai, AI)
+
+RECSUPDEF(stringout, STRINGOUT)
+EXPORT_DSET(stringout, STRINGOUT)
+
+/*
+static long lisSpecialLinConv ## REC_NAME (struct REC_RECORD ## Record *precord, int after) { \
+    return lisSpecialLinConv((struct dbCommon *)precord, after); \
+} \
+*/
+
+/*
+aidset lisAI = {
+    { 6,
+      lisReportAI,
+      lisInitLuaAI,
+      lisInitRecordAI,
+      lisGetIoIntInfo },
+    lisProcessAI,
+    lisSpecialLinConv
+};
+epicsExportAddress(dset, lisAI);
+*/
 
 static const iocshArg lisConfigureArg0 = { "Directory", iocshArgString };
 static const iocshArg lisConfigureArg1 = { "Debug level", iocshArgInt };
