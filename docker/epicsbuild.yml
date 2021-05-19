@@ -1,0 +1,6 @@
+name: 'EPICS build'
+description: 'Confirm that EPICS was sucessfully built'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+
