@@ -1,0 +1,14 @@
+on: [push]
+
+jobs:
+  test_epicsbuild_job:
+    runs-on: ubuntu-latest
+    name: A job to test the build
+    steps:
+      - name: Hello world action step
+        id: hello
+        uses: actions/luaiocsup
+      # Use the output from the `hello` step
+      - name: Get the output time
+        run: echo "The output was"
+
