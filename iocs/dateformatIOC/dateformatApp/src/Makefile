@@ -34,6 +34,10 @@ dateformat_SRCS_vxWorks += -nil-
 # Finally link to the EPICS Base libraries
 dateformat_LIBS += $(EPICS_BASE_IOC_LIBS)
 
+## Link the system Lua library when not compiled into luaiocsup
+#dateformat_LDFLAGS += -L/home/gabadinho/SWDev/lua-5.4.3/src
+#dateformat_LIBS += lua
+
 #===========================
 
 include $(TOP)/configure/RULES

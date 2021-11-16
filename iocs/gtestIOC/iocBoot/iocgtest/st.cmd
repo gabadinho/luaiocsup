@@ -11,6 +11,9 @@ cd "${TOP}"
 dbLoadDatabase "dbd/gtest.dbd"
 gtest_registerRecordDeviceDriver pdbbase
 
+## Configure Lua IOC Support
+#lisConfigure("${TOP}/luascripts/",2,20)
+
 ## Load record instances
 #dbLoadRecords("db/xxx.db","user=jg")
 

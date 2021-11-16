@@ -12,10 +12,13 @@ dbLoadDatabase "dbd/dateformat.dbd"
 dateformat_registerRecordDeviceDriver pdbbase
 
 ## Configure Lua IOC Support
-lisConfigure("${TOP}/luascripts",2,20)
+lisConfigure("${TOP}/luascripts/",2,20)
 
 ## Load record instances
-dbLoadRecords("db/stringout.db","RECORD=LUA:DATE,DTYP=lua,OUT='@timenow.lua'")
+dbLoadRecords("db/stringout.db","RECORD=LUA:DATE,DTYP=luaiocsup,OUT='@timenow.lua'")
+dbLoadRecords("db/stringout.db","RECORD=LUA:DATE2,DTYP=luaiocsup,OUT='@timenow.lua'")
+
+dbLoadRecords("db/luasub.db","RECORD=LUA:SUB1,INP='@sub1.lua'")
 
 cd "${TOP}/iocBoot/${IOC}"
 iocInit

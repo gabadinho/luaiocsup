@@ -22,13 +22,13 @@
 # the CONFIG_SITE file.
 
 # Variables and paths to dependent modules:
-LUAIOCSUP = /home/jg/SWDev/luaiocsup
+LUAIOCSUP = /home/gabadinho/SWDev/luaiocsup
 
 # If using the sequencer, point SNCSEQ at its top directory:
 #SNCSEQ = $(MODULES)/seq-ver
 
 # EPICS_BASE should appear last so earlier modules can override stuff:
-EPICS_BASE = /home/jg/SWDev/EPICS/base
+EPICS_BASE = /home/gabadinho/SWDev/EPICS/base
 
 # Set RULES here if you want to use build rules from somewhere
 # other than EPICS_BASE:

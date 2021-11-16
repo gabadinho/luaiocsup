@@ -1,0 +1,4 @@
+record(luasub, "$(RECORD)") {
+    field(INP,  "$(INP)")
+}
+

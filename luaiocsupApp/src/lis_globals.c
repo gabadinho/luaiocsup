@@ -1,19 +1,24 @@
+/**
+  * \file lis_globals.c
+  * \brief Global variables definitions: configuration settings from iocsh command.
+  * \author Jose C.G. Gabadinho
+  */
+
 #include "lis_globals.h"
 
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <string.h>
+
+
 
 int   lisDebugLevel = 1;
 int   lisMinStackSize = 0;
 char *lisBaseDirectory = NULL;
-int   lisCastCharsAsString = FALSE;
+int   lisCastCharsAsString = 0;
 
-epicsMutexId lisRecordsAddDelLock; /* MOVE THIS TO BaseRecord CLASS!!!*/
+int lisIsIocRunning = 0;
 
-int lisIsIocRunning = FALSE;
 
-epicsMutexId lisPutLinkLock;
-CALLBACK lisPutLinkCallback;
 
 void lisSetDebugLevel(int debug_level) {
     lisDebugLevel = debug_level;
@@ -29,4 +34,8 @@ void lisSetBaseDirectory(char *base_dir) {
 
 void lisSetCastCharsAsString(int charsasstring) {
     lisCastCharsAsString = charsasstring;
+}
+
+void lisSetIocRunning() {
+    lisIsIocRunning = 1;
 }
